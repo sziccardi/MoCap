@@ -1,0 +1,23 @@
+﻿  imgpro.cpp
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.h(48): warning C4091: 'typedef ': ignored on left of 'Match' when no variable is declared
+c:\users\shelby\desktop\thesis\opticalmocap\src\imgpro.cpp(253): warning C4477: 'scanf' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'int'
+c:\users\shelby\desktop\thesis\opticalmocap\src\imgpro.cpp(253): warning C4477: 'scanf' : format string '%d' requires an argument of type 'int *', but variadic argument 2 has type 'int'
+c:\users\shelby\desktop\thesis\opticalmocap\src\imgpro.cpp(253): warning C4477: 'scanf' : format string '%d' requires an argument of type 'int *', but variadic argument 3 has type 'int'
+c:\users\shelby\desktop\thesis\opticalmocap\src\imgpro.cpp(307): warning C4101: 'yb': unreferenced local variable
+c:\users\shelby\desktop\thesis\opticalmocap\src\imgpro.cpp(307): warning C4101: 'xb': unreferenced local variable
+c:\users\shelby\desktop\thesis\opticalmocap\src\imgpro.cpp(307): warning C4101: 'ya': unreferenced local variable
+c:\users\shelby\desktop\thesis\opticalmocap\src\imgpro.cpp(307): warning C4101: 'xa': unreferenced local variable
+  R2Image.cpp
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.h(48): warning C4091: 'typedef ': ignored on left of 'Match' when no variable is declared
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(443): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(578): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(637): warning C4551: function call missing argument list
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(712): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(713): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(943): warning C4473: 'printf' : not enough arguments passed for format string
+  c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(943): note: placeholders and their parameters expect 12 variadic arguments, but 11 were provided
+  c:\users\shelby\desktop\thesis\opticalmocap\src\r2image.cpp(943): note: the missing variadic argument 12 is required by format string '%f'
+  Generating Code...
+imgpro.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  main.vcxproj -> C:\Users\Shelby\Desktop\Thesis\OpticalMocap\src\Debug\imgpro.exe
+  main.vcxproj -> C:\Users\Shelby\Desktop\Thesis\OpticalMocap\src\Debug\imgpro.pdb (Full PDB)

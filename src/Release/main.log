@@ -1,0 +1,18 @@
+﻿  R2Image.cpp
+c:\users\shelby\desktop\ait\comp vision\skeletoncode1\src\R2Image.h(41): warning C4091: 'typedef ': ignored on left of 'Match' when no variable is declared
+R2Image.cpp(391): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+R2Image.cpp(527): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+R2Image.cpp(586): warning C4551: function call missing argument list
+R2Image.cpp(760): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+R2Image.cpp(761): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+R2Image.cpp(921): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+R2Image.cpp(922): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+R2Image.cpp(1031): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+R2Image.cpp(1034): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  Generating code
+  2 of 432 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  assn1.vcxproj -> C:\Users\Shelby\Desktop\AIT\Comp Vision\skeletonCode1\src\Release\imgpro.exe
+  assn1.vcxproj -> C:\Users\Shelby\Desktop\AIT\Comp Vision\skeletonCode1\src\Release\imgpro.pdb (Full PDB)
