@@ -14,6 +14,7 @@
 // Constructors/Destructors
 ////////////////////////////////////////////////////////////////////////
 
+//TODO: Are all of these necessary? Need to evaluate.
 
 R2Image::
 R2Image(void)
@@ -23,6 +24,8 @@ R2Image(void)
 	height(0),
 	markerLocs2DX(std::vector<int>()),
 	markerLocs2DY(std::vector<int>()),
+	givenLocs2DX(std::vector<int>()),
+	givenLocs2DY(std::vector<int>()),
 	givenLocs3DX(std::vector<int>()),
 	givenLocs3DY(std::vector<int>()),
 	givenLocs3DZ(std::vector<int>())
@@ -40,6 +43,8 @@ R2Image(const char *filename)
 	height(0),
 	markerLocs2DX(std::vector<int>()),
 	markerLocs2DY(std::vector<int>()),
+	givenLocs2DX(std::vector<int>()),
+	givenLocs2DY(std::vector<int>()),
 	givenLocs3DX(std::vector<int>()),
 	givenLocs3DY(std::vector<int>()),
 	givenLocs3DZ(std::vector<int>())
@@ -52,20 +57,24 @@ R2Image(const char *filename)
 
 
 R2Image::
-R2Image(const char *filename, std::vector<int> knownX, std::vector<int> knownY, std::vector<int> knownZ)
+R2Image(const char *filename, int numMarkers, std::vector<int> knownX, std::vector<int> knownY, std::vector<int> knownZ)
 	: pixels(NULL),
 	npixels(0),
 	width(0),
 	height(0),
 	markerLocs2DX(std::vector<int>()),
 	markerLocs2DY(std::vector<int>()),
+	givenLocs2DX(std::vector<int>()),
+	givenLocs2DY(std::vector<int>()),
 	givenLocs3DX(knownX),
 	givenLocs3DY(knownY),
-	givenLocs3DZ(knownZ)
+	givenLocs3DZ(knownZ),
+	numMarkers(numMarkers)
 {
   // Given the name
   // Read image
   Read(filename);
+  
 }
 
 
@@ -78,6 +87,8 @@ R2Image(int width, int height, std::vector<int> knownX, std::vector<int> knownY,
     height(height),
 	markerLocs2DX(std::vector<int>()),
 	markerLocs2DY(std::vector<int>()),
+	givenLocs2DX(std::vector<int>()),
+	givenLocs2DY(std::vector<int>()),
 	givenLocs3DX(knownX),
 	givenLocs3DY(knownY),
 	givenLocs3DZ(knownZ)
@@ -98,6 +109,8 @@ R2Image(int width, int height, const R2Pixel *p, std::vector<int> knownX, std::v
     height(height),
 	markerLocs2DX(std::vector<int>()),
 	markerLocs2DY(std::vector<int>()),
+	givenLocs2DX(std::vector<int>()),
+	givenLocs2DY(std::vector<int>()),
 	givenLocs3DX(knownX),
 	givenLocs3DY(knownY),
 	givenLocs3DZ(knownZ)
@@ -122,9 +135,12 @@ R2Image(const R2Image& image)
     height(image.height),
 	markerLocs2DX(image.markerLocs2DX),
 	markerLocs2DY(image.markerLocs2DY),
+	givenLocs2DX(image.givenLocs2DX),
+	givenLocs2DY(image.givenLocs2DY),
 	givenLocs3DX(image.givenLocs3DX),
 	givenLocs3DY(image.givenLocs3DY),
-	givenLocs3DZ(image.givenLocs3DZ)
+	givenLocs3DZ(image.givenLocs3DZ),
+	numMarkers(image.numMarkers)
     
 {
   // Given an image, make a copy
@@ -147,7 +163,9 @@ R2Image::
 }
 
 
-// DEFINING OPERATORS
+////////////////////////////////////////////////////////////////////////
+// OPERATORS 
+////////////////////////////////////////////////////////////////////////
 
 R2Image& R2Image::
 operator=(const R2Image& image)
@@ -163,6 +181,10 @@ operator=(const R2Image& image)
   // Reset marker locations
   markerLocs2DX = image.markerLocs2DX;
   markerLocs2DY = image.markerLocs2DY;
+
+  givenLocs2DX = image.givenLocs2DX;
+  givenLocs2DY = image.givenLocs2DY;
+  
   givenLocs3DX = image.givenLocs3DX;
   givenLocs3DY = image.givenLocs3DY;
   givenLocs3DZ = image.givenLocs3DZ;
@@ -203,13 +225,12 @@ operator*(const R2Image image)
 
 
 ////////////////////////////////////////////////////////////////////////
-// Image processing functions
-// YOU IMPLEMENT THE FUNCTIONS IN THIS SECTION
+// FUNCTIONS
 ////////////////////////////////////////////////////////////////////////
 
-// Tools for Per-pixel Operations //////////////////////////////////////
-
-int* R2Image::matMult(int* vector, int size, double** mat, int rows, int columns) {
+//Helpful tools
+int* R2Image::matMult(int* vector, int size, double** mat, int rows, int columns) 
+{
 
 	int* result = new int[3]; 
 
@@ -231,7 +252,8 @@ int* R2Image::matMult(int* vector, int size, double** mat, int rows, int columns
 	}
 }
 
-int* R2Image::Normalize(int* vector, int size) {
+int* R2Image::Normalize(int* vector, int size) 
+{
 	int* result = new int[3];
 	for (int i = 0; i < size; i++) {
 		result[i] = 0;
@@ -248,9 +270,12 @@ validPixel(const int x, const int y)
 	return (x >= 0 && x < width && y >= 0 && y < height);
 }
 
-//Sum of Squared Differences
-double R2Image::SSD(R2Image* otherImage, int x1, int y1, int x2, int y2, int range) {
-	
+double R2Image::SSD(R2Image* otherImage, int x1, int y1, int x2, int y2, int range) 
+{
+	//Sum of Squared Difference
+	//TODO: write description
+	////////////////////////////////////////////////////////////////////////
+
 	double ssd = 0;
 	//iterate through a local area defined by range
 	for (int i = -range; i < range; i++) {
@@ -258,9 +283,17 @@ double R2Image::SSD(R2Image* otherImage, int x1, int y1, int x2, int y2, int ran
 			//if we dont go off the edge of the image
 			if ( validPixel(x1+i, y1+j) && validPixel(x2+i, y1+j)
 				&& validPixel(x1+i, y2+j) && validPixel(x2+i, y2+j) ) { 
+
 				//take the difference between the luminances, square and add to sum
-				double diff = Pixel((i + x1), (j + y1)).Luminance() - otherImage->Pixel((i + x2), (j + y2)).Luminance();
-				ssd += diff * diff;
+				//double diff = Pixel((i + x1), (j + y1)).Luminance() - otherImage->Pixel((i + x2), (j + y2)).Luminance();
+				//ssd += diff * diff;
+
+				//take the difference between the r, g, and b values then square and sum those
+				double diffR = Pixel((i + x1), (j + y1)).Red() - otherImage->Pixel((i + x2), (j + y2)).Red();
+				double diffG = Pixel((i + x1), (j + y1)).Green() - otherImage->Pixel((i + x2), (j + y2)).Green();
+				double diffB = Pixel((i + x1), (j + y1)).Blue() - otherImage->Pixel((i + x2), (j + y2)).Blue();
+				ssd += ((diffR * diffR) + (diffG * diffG) + (diffB * diffB));
+				
 			} 
 		}
 	}
@@ -268,15 +301,12 @@ double R2Image::SSD(R2Image* otherImage, int x1, int y1, int x2, int y2, int ran
 return ssd;
 }
 
-double GaussValue(int x, double sigma) {
-
-	//1D gaussian function
-	return ((1.0 / (sqrt(2 * M_PI)*sigma)) * pow(M_E, -1 * (x*x) / (2 * sigma*sigma)));
-
-}
-
-//draw a box for markers
-void R2Image::drawMarkers(int m, float r, float g, float b) {
+//TODO: Combine the box-drawing methods
+void R2Image::drawMarkers(int m, float r, float g, float b) 
+{
+	//draw a box for markers
+	//TODO: write description
+	////////////////////////////////////////////////////////////////////////
 
 	int x = markerLocs2DX[m];
 	int y = markerLocs2DY[m];
@@ -287,7 +317,6 @@ void R2Image::drawMarkers(int m, float r, float g, float b) {
 	int i = -20;
 	int j = -20;
 	while (j < 20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
@@ -297,51 +326,40 @@ void R2Image::drawMarkers(int m, float r, float g, float b) {
 			Pixel(i + newx, j + newy).SetRed(g);
 			Pixel(i + newx, j + newy).SetGreen(b);
 		}
-
 		j++;
-
 	}
-
 	while (i < 20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
 		}
-
 		i++;
-
 	}
-
 	while (j > -20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
 		}
-
 		j--;
-
 	}
-
 	while (i > -20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
 		}
-
 		i--;
-
 	}
-
 }
 
-//draw a box for reference spots
-void R2Image::drawReferenceSpots(int m, float r, float g, float b) {
+
+void R2Image::drawReferenceSpots(int m, float r, float g, float b) 
+{
+	//draw a box for reference spots
+	//TODO: write description
+	////////////////////////////////////////////////////////////////////////
 
 	int x = givenLocs2DX[m];
 	int y = givenLocs2DY[m];
@@ -349,53 +367,38 @@ void R2Image::drawReferenceSpots(int m, float r, float g, float b) {
 	int i = -20;
 	int j = -20;
 	while (j < 20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
 		}
-
 		j++;
-
 	}
 
 	while (i < 20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
 		}
-
 		i++;
-
 	}
-
 	while (j > -20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
 		}
-
 		j--;
-
 	}
-
 	while (i > -20) {
-
 		if (i + x >= 0 && j + y >= 0 && i + x < width && j + y < height) {
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
 		}
-
 		i--;
-
 	}
-
 }
 
 void R2Image::box(int x, int y, float r, float g, float b)
@@ -411,9 +414,13 @@ void R2Image::box(int x, int y, float r, float g, float b)
 	}
 }
 
-//draw a line for marker tracks with boxes on the features
+
 void R2Image::line(int x0, int y0, int x1, int y1, float r, float g, float b)
 {
+	//draw a line for marker tracks with boxes on the features
+	//TODO: write description
+	////////////////////////////////////////////////////////////////////////
+
 	if (x0>x1) {
 		int x = y1;
 		y1 = y0;
@@ -449,200 +456,15 @@ void R2Image::line(int x0, int y0, int x1, int y1, float r, float g, float b)
 
 }
 
-//adds filter to the image with a given kernel
-R2Image R2Image::
-filterMult(int kernel[3][3]) {
-	//make changes on a temp image or else values will change when you need the original to multiply
-	R2Image tempImg(*this);
-	//iterate through image
-	for (int x = 1; x < width - 1; x++) {
-		for (int y = 1; y < height - 1; y++) {
-			//MAKE PRETTIER
-			tempImg.SetPixel(x, y, ((kernel[0][0] *  Pixel(x - 1, y - 1)) + (kernel[0][1] *  Pixel(x, y - 1)) + (kernel[0][2] *  Pixel(x + 1, y - 1)) +
-				(kernel[1][0] *  Pixel(x - 1, y)) + (kernel[1][1] *  Pixel(x, y)) + (kernel[1][2] *  Pixel(x + 1, y)) +
-				(kernel[2][0] *  Pixel(x - 1, y + 1)) + (kernel[2][1] *  Pixel(x, y + 1)) + (kernel[2][2] *  Pixel(x + 1, y + 1))));
-
-		}
-	}
-
-	return tempImg;
-}
-
-// Per-pixel Filters ////////////////////////////////////////////////
-void R2Image::
-Brighten(double factor)
-{
-  // Brighten the image by multiplying each pixel component by the factor.
-  // This is implemented for you as an example of how to access and set pixels
-  for (int i = 0; i < width; i++) {
-    for (int j = 0;  j < height; j++) {
-      Pixel(i,j) *= factor;
-      Pixel(i,j).Clamp();
-    }
-  }
-}
-
-void R2Image::
-SobelX()
-{
-	// Apply the Sobel oprator to the image in X direction
-  int kernelx[3][3] = { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
-
-  R2Image tempImg = filterMult(kernelx);
-
-  for (int x = 1; x < width - 1; x++) {
-	  for (int y = 1; y < height - 1; y++) {
-		  //double value;
-		  //value = tempImg.Pixel(x, y).Luminance() + 0.5;
-
-		  //Pixel(x, y) = R2Pixel(value, value, value, 1.0);
-		  //Pixel(x, y).Clamp();
-		  Pixel(x, y) = tempImg.Pixel(x, y);
-	  }
-  }
-}
-
-void R2Image::
-SobelY()
-{
-	// Apply the Sobel oprator to the image in Y direction
-
-	//take the pixels around each pixel (thats why we start at 1, so we dont fall off the edge)
-	//scale each of those by the appropriate index of the kernel and sum
-	//normalize so pixel values stay between 0-255?
-
-  int kernely[3][3] = { { -1, -2, -1 }, { 0,  0,  0 }, { 1,  2,  1 } };
-
-  R2Image tempImg = filterMult(kernely);
-
-  for (int x = 1; x < width - 1; x++) {
-	  for (int y = 1; y < height - 1; y++) {
-		  //double value;
-		  //value = tempImg.Pixel(x, y).Luminance();
-
-		   //Pixel(x, y) = R2Pixel(value, value, value, 1.0);
-		  //Pixel(x, y).Clamp();
-		  Pixel(x, y) = tempImg.Pixel(x, y);
-	  }
-  }
-}
-
-void R2Image::
-LoG(void)
-{
-  // Apply the LoG oprator to the image
-	int kernel[5][5] = { { 0,0,1,0,0 }, { 0,1,2,1,0 }, { 1,2,-16,2,1 }, { 0,1,2,1,0 }, { 0,0,1,0,0 } };
-  
-	//lapplacian of a gaussian
-	//using a different kernel, take convolution product
-	//remember to normalize
-	
-	// FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "LoG() not implemented\n");
-}
-
-void R2Image::
-ChangeSaturation(double factor)
-{
-  // Changes the saturation of an image
-  // Find a formula that changes the saturation without affecting the image brightness
-
-	//convert RGB to HSL, increase S, then convert back
-	
-  // FILL IN IMPLEMENTATION HERE (REMOVE PRINT STATEMENT WHEN DONE)
-  fprintf(stderr, "ChangeSaturation(%g) not implemented\n", factor);
-}
-
-void R2Image::
-Sharpen()
-{
-	// Sharpen an image using a linear filter. Use a kernel of your choosing.
-
-	int kernelSharp[3][3] = { { 0, -1, 0 },{ -1,  5,  -1 },{ 0,  -1,  0 } };
-
-	R2Image tempImg = filterMult(kernelSharp);
-
-	//*this = tempImg;
-	for (int x = 1; x < width - 1; x++) {
-		for (int y = 1; y < height - 1; y++) {
-			Pixel(x, y) = tempImg.Pixel(x, y);
-			Pixel(x, y).Clamp();
-		}
-	}
-
-}
-
-void R2Image::
-Blur(double sigma)
-{
-	int kernelSize = (6 * sigma + 1); //this will always be odd when sigma is a whole #
-	int halfKernel = (int)(kernelSize / 2); //this will always be a rounded down half
-
-	double *kernel = (double*)malloc((kernelSize) * sizeof(double));
-
-	for (int i = 0; i < kernelSize; i++) {
-
-			kernel[i] = GaussValue((i - halfKernel), sigma);
-		
-	}
-
-	R2Image tempImg(*this);	
-	
-	for (int x = halfKernel; x < width - halfKernel; x++) {
-		for (int y = halfKernel; y < height - halfKernel; y++) {
-
-			double total_kernel = 0;
-			R2Pixel value;
-
-			for (int k = -halfKernel; k <= halfKernel; k++) {
-				value += Pixel(x + k, y) * kernel[k + halfKernel];
-				total_kernel += kernel[k + halfKernel];
-			}
-			
-			value = value / total_kernel;
-			tempImg.SetPixel(x, y, value);
-
-		}
-	}
-	
-
-	for (int x = halfKernel; x < width - halfKernel; x++) {
-		for (int y = halfKernel; y < height - halfKernel; y++) {
-			
-			R2Pixel value;
-			double total_kernel = 0;
-
-			for (int k = -halfKernel; k <= halfKernel; k++) {
-				
-				value += tempImg.Pixel(x, y + k) * kernel[k + halfKernel];
-				total_kernel += kernel[k + halfKernel];
-			
-			}
-
-			value = value / total_kernel;
-			SetPixel(x, y, value);
-
-		}
-	}
-
-	/*for (int x = halfKernel; x < width - halfKernel; x++) {
-		for (int y = halfKernel; y < height - halfKernel; y++) {
-			
-			//Pixel(x, y) = tempImg.Pixel(x, y);
-			Pixel(x, y).Clamp();
-		
-		}
-	}*/
-	printf("I blurred!\n");
-  free;
-
-}
 
 // Tools for Detection ////////////////////////////////////////////////
 
-/* qsort struct comparision function (price float field) */
+
 int compare(const void *p, const void *q)
 {
+	// qsort struct comparision function (price float field)
+	////////////////////////////////////////////////////////////////////////
+
 	Marker2D *a, *b;
 
 	a = (Marker2D*)p;
@@ -659,41 +481,29 @@ Marker2D* R2Image::
 MarkerDetection(R2Image* referenceImage)
 {
 	//implimented for 1 marker right now
-	//TODO : add a field for numMarkers
-
+	//TODO : iterate through all markers
+	
 	//radius for search window
 	int radius = referenceImage->width/2;
-	printf("radius = %d", radius);
 	Marker2D *list;
-	list = new Marker2D[1]; //numMarkers inside
+	list = new Marker2D[numMarkers];
 
 	double minSSD = (double) MAXINT;
-
-	//iterate through pixels in main image in chunks of 2*radius
+	
+	//iterate through pixels in main image in chunks of 2*radius 
 	for (int j = 0; j < (int)(height / (2*radius)); j++) {
 		for (int i = 0; i < (int)(width / (2 * radius)); i++) {
 
-			//printf(" at point ( %d, %d ) \n", i, j);
-			
-			/*for (int x = 0; x < 2 * radius; x++) {
-				for (int y = 0; y < 2 * radius; y++) {*/
+			double tempSSD = SSD(referenceImage, (i * 2 * radius + radius), (j * 2 * radius + radius), radius, radius, radius);
 
-					double tempSSD = SSD(referenceImage, (i * 2 * radius + radius), (j * 2 * radius + radius), radius, radius, radius);
-
-					if (tempSSD < minSSD) {
-						printf("ssd = %lf @ ( %d, %d) \n", tempSSD, i, j);
-						minSSD = tempSSD;
-						list[0].xVal = (i * 2 * radius + radius);
-						list[0].yVal = (j * 2 * radius + radius);
-						list[0].harrisValue = minSSD;
-					}
-				/*}
-			}*/
-			
+			if (tempSSD < minSSD) {
+				minSSD = tempSSD;
+				list[0].xVal = (i * 2 * radius + radius);
+				list[0].yVal = (j * 2 * radius + radius);
+				list[0].harrisValue = minSSD;
+			}
 		}
 	}
-
-	printf("got here3");
 
 	return list;
 
@@ -701,19 +511,23 @@ MarkerDetection(R2Image* referenceImage)
 
 
 void R2Image::
-trackMarkersOntoOtherImage(Marker2D *originalMarkers, R2Image *otherImage, Marker2D *newMarkers) {
+trackMarkersOntoOtherImage(std::vector<int> originalXLocs, std::vector<int> originalYLocs, R2Image *otherImage, int radius) {
 
+	//TODO: impliment the use of this 
 	///////////////////////////////////////////////////////////////////////////////
 
-	//for each original feature
-	for (int i = 0; i < 150; i++) {
+	std::vector<int> tempXVals(numMarkers);
+	std::vector<int> tempYVals(numMarkers);
+
+	//for each marker
+	for (int i = 0; i < numMarkers; i++) {
 
 		//search through a window of pixels to find the one that matches
 		int searchWindowWidth = (int)width*0.1;
 		int searchWindowHeight = (int)height*0.1;
 
-		int currentPixelLocX = originalMarkers[i].xVal;
-		int currentPixelLocY = originalMarkers[i].yVal;
+		int currentPixelLocX = originalXLocs[i];
+		int currentPixelLocY = originalYLocs[i];
 
 		Marker2D minSSDMarker;
 		double minSSD = (double)MAXINT, currentSSD;
@@ -740,9 +554,11 @@ trackMarkersOntoOtherImage(Marker2D *originalMarkers, R2Image *otherImage, Marke
 		}
 
 		//copy the min SSD feature into the list
-		newMarkers[i].xVal = minSSDMarker.xVal;
-		newMarkers[i].yVal = minSSDMarker.yVal;
+		tempXVals[i] = minSSDMarker.xVal;
+		tempYVals[i] = minSSDMarker.yVal;
 	}
+
+	otherImage->SetMarkerLocs(tempXVals, tempYVals);
 
 }
 
@@ -808,7 +624,7 @@ RANDSAC(int maxIteration, int threshold, Marker2D *originalFeatures, Marker2D *m
 		printf(" mapped < %d %d > to < %d %d > \n mapped < %d %d > to < %d %d > \n mapped < %d %d > to < %d %d > \n mapped < %d %d > to < %d %d > \n \n",
 			input[0], input[1], output[0], output[1], input[2], input[3], output[2], output[3], input[4], input[5], output[4], output[5], input[6], input[7], output[6], output[7]);
 
-		HMatrix = calcHomographyMatrix(input, output, 4);
+		HMatrix = calcCameraMatrix(input, output, 4);
 
 		for (int j = 0; j < 150; j++) {
 			if (random[0] != j && random[1] != j && random[2] != j && random[3] != j) {
@@ -858,14 +674,13 @@ RANDSAC(int maxIteration, int threshold, Marker2D *originalFeatures, Marker2D *m
 	HMatrix = bestMatch.hMatrix;
 
 	return bestMatch.numMatches;
-
-
 }
 
 
 
 double** R2Image::
-calcHomographyMatrix(int *input, int *output, int size){
+calcCameraMatrix(int *input, int *output, int size)
+{
 	//size = number of matched points
 	//input = 3D points
 	//output = 2D points
@@ -907,11 +722,11 @@ calcHomographyMatrix(int *input, int *output, int size){
 	}
 
 	// compute the SVD
-	double singularValues[13]; // 1..9
+	double singularValues[13]; // 1..12
 
 	double **nullspaceMatrix;
 
-	nullspaceMatrix = dmatrix(1, 13, 1, 13);
+	nullspaceMatrix = dmatrix(1, 12, 1, 12);
 	
 	svdcmp(linEquations, (size*2), 12, singularValues, nullspaceMatrix);
 
@@ -925,37 +740,41 @@ calcHomographyMatrix(int *input, int *output, int size){
 	// solution is the nullspace of the matrix, which is the column in V corresponding to the smallest singular value (which should be 0)
 	
 	double **HomographyMatrix;
-	HomographyMatrix = dmatrix(0, 3, 0, 4);
+	HomographyMatrix = dmatrix(0, 4, 0, 3);
 
 	HomographyMatrix[0][0] = nullspaceMatrix[1][smallestIndex];
 	HomographyMatrix[0][1] = nullspaceMatrix[2][smallestIndex];
 	HomographyMatrix[0][2] = nullspaceMatrix[3][smallestIndex];
-	HomographyMatrix[0][3] = nullspaceMatrix[4][smallestIndex];
-	HomographyMatrix[1][0] = nullspaceMatrix[5][smallestIndex];
-	HomographyMatrix[1][1] = nullspaceMatrix[6][smallestIndex];
-	HomographyMatrix[1][2] = nullspaceMatrix[7][smallestIndex];
-	HomographyMatrix[1][3] = nullspaceMatrix[8][smallestIndex];
-	HomographyMatrix[2][0] = nullspaceMatrix[9][smallestIndex];
-	HomographyMatrix[2][1] = nullspaceMatrix[10][smallestIndex];
-	HomographyMatrix[2][2] = nullspaceMatrix[11][smallestIndex];
-	HomographyMatrix[2][3] = nullspaceMatrix[12][smallestIndex];
+	HomographyMatrix[1][0] = nullspaceMatrix[4][smallestIndex];
+	HomographyMatrix[1][1] = nullspaceMatrix[5][smallestIndex];
+	HomographyMatrix[1][2] = nullspaceMatrix[6][smallestIndex];
+	HomographyMatrix[2][0] = nullspaceMatrix[7][smallestIndex];
+	HomographyMatrix[2][1] = nullspaceMatrix[8][smallestIndex];
+	HomographyMatrix[2][2] = nullspaceMatrix[9][smallestIndex];
+	HomographyMatrix[3][0] = nullspaceMatrix[10][smallestIndex];
+	HomographyMatrix[3][1] = nullspaceMatrix[11][smallestIndex];
+	HomographyMatrix[3][2] = nullspaceMatrix[12][smallestIndex];
 
-	printf("Homography Matrix: \n | %f %f %f %f |\n | %f %f %f %f |\n | %f %f %f %f| \n",
-	HomographyMatrix[0][0], HomographyMatrix[0][1], HomographyMatrix[0][2], HomographyMatrix[0][3],
-	HomographyMatrix[1][0], HomographyMatrix[1][1], HomographyMatrix[1][2], HomographyMatrix[1][3],
-	HomographyMatrix[2][0], HomographyMatrix[2][1], HomographyMatrix[2][2]), HomographyMatrix[2][3];
+	printf("Camera matrix: \n | %f %f %f |\n | %f %f %f |\n | %f %f %f | \n | %f %f %f | \n",
+	HomographyMatrix[0][0], HomographyMatrix[0][1], HomographyMatrix[0][2],
+	HomographyMatrix[1][0], HomographyMatrix[1][1], HomographyMatrix[1][2],
+	HomographyMatrix[2][0], HomographyMatrix[2][1], HomographyMatrix[2][2],
+	HomographyMatrix[3][0], HomographyMatrix[3][1], HomographyMatrix[3][2]);
 
 	return HomographyMatrix;
 
 }
 
 void R2Image::
-find3DLocation(Marker2D *screenLocs, Marker3D *knownLocs, Marker2D *unknownLocs, int numKnown, int numUnknown) {
+find3DLocation(Marker2D *screenLocs, Marker3D *knownLocs, Marker2D *unknownLocs, int numKnown, int numUnknown) 
+{
 	//screenLocs = screen locations for the reference spots
 	//knownLocs = known locations for the reference spots
 	//unknownLocs = screen locs of markers
 	//numKnown = number of reference spots
 	//numUnknown = number of markers
+
+	////////////////////////////////////////////////////////////////////////
 
 	int *output = new int[2 * numKnown];
 	int *input = new int[3 * numKnown];
@@ -979,25 +798,34 @@ find3DLocation(Marker2D *screenLocs, Marker3D *knownLocs, Marker2D *unknownLocs,
 	}
 	
 	double **HomographyMatrix;
-	HomographyMatrix = dmatrix(0, 3, 0, 4);
-	HomographyMatrix = calcHomographyMatrix(input, output, numKnown);
+	HomographyMatrix = dmatrix(0, 4, 0, 3);
+	HomographyMatrix = calcCameraMatrix(input, output, numKnown);
+
+	FILE * pFile;
+	pFile = fopen("3DLocs.txt", "w");
 
 	for (int i = 0; i < numUnknown; i++) {
 
-		//NEED TO RECHEK THESE SIZES
+		//TODO: NEED TO RECHEK THESE SIZES
 		int* markerLoc = new int[3];
 		markerLoc[0] = unknownLocs[i].xVal;
 		markerLoc[1] = unknownLocs[i].yVal;
 		markerLoc[2] = 1;
 		int* newMarkerLoc = new int[4];
-		newMarkerLoc = matMult(markerLoc, 3, HomographyMatrix, 3, 4);
+		newMarkerLoc = matMult(markerLoc, 3, HomographyMatrix, 4, 3);
 
 		//output these 3D locations to a file
+		fprintf(pFile, "%d %d %d %d\n", newMarkerLoc[0], newMarkerLoc[1], newMarkerLoc[2], newMarkerLoc[3]);
+
 		//might need to normalize?
 	}
 
 }
 
+
+/*	Original Skeleton 
+	From here down
+*/
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -1040,6 +868,7 @@ Write(const char *filename) const
     fprintf(stderr, "Input file has no extension (e.g., .jpg).\n");
     return 0;
   }  
+
   // Write file of appropriate type
   if (!strncmp(input_extension, ".bmp", 4)) return WriteBMP(filename);
   else if (!strncmp(input_extension, ".ppm", 4)) return WritePPM(filename, 1);
