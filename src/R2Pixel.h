@@ -2,8 +2,13 @@
 #ifndef R2_PIXEL_INCLUDED
 #define R2_PIXEL_INCLUDED
 
+/*	Almost entirely Original Skeleton
+	Only adjustment made is in the Luminosity function
+*/
 
-// Class definition 
+////////////////////////////////////////////////////////////////////////
+// Class definition
+//////////////////////////////////////////////////////////////////////// 
 
 class R2Pixel {
  public:
@@ -60,7 +65,7 @@ class R2Pixel {
 
 
 
-// Public variables 
+// Fields 
 
 extern R2Pixel R2null_pixel;
 extern R2Pixel R2black_pixel;
@@ -73,8 +78,9 @@ extern R2Pixel R2magenta_pixel;
 extern R2Pixel R2white_pixel;
 
 
-
-// Inline functions 
+////////////////////////////////////////////////////////////////////////
+// GETTERS/SETTERS
+////////////////////////////////////////////////////////////////////////
 
 inline double R2Pixel::
 Red(void) const
@@ -83,16 +89,12 @@ Red(void) const
   return(c[0]);
 }
 
-
-
 inline double R2Pixel::
 Green(void) const
 {
   // Return green component of pixel
   return(c[1]);
 }
-
-
 
 inline double R2Pixel::
 Blue(void) const
@@ -101,8 +103,6 @@ Blue(void) const
   return(c[2]);
 }
 
-
-
 inline double R2Pixel::
 Alpha(void) const
 {
@@ -110,16 +110,12 @@ Alpha(void) const
   return(c[3]);
 }
 
-
-
 inline double *R2Pixel::
 Components(void)
 {
   // Return pixel array
   return c;
 }
-
-
 
 inline double R2Pixel::
 Component(int i) const
@@ -129,14 +125,17 @@ Component(int i) const
 }
 
 
+////////////////////////////////////////////////////////////////////////
+// GETTERS & SETTERS 
+////////////////////////////////////////////////////////////////////////
+
+// Getters ////////////////////////////////////////////////////////////////////////
 
 inline double R2Pixel::
 operator[](int i) const
 {
   return Component(i);
 }
-
-
 
 inline double& R2Pixel::
 operator[] (int i) 
@@ -145,16 +144,12 @@ operator[] (int i)
   return(c[i]);
 }
 
-
-
 inline bool R2Pixel::
 IsBlack (void) const
 {
   // Return whether color is black
   return ((c[0] == 0.0) && (c[1] == 0.0) && (c[2] == 0.0));
 }
-
-
 
 inline bool R2Pixel::
 IsWhite (void) const
@@ -163,8 +158,7 @@ IsWhite (void) const
   return ((c[0] == 1.0) && (c[1] == 1.0) && (c[2] == 1.0));
 }
 
-
-
+/*I defined this*/
 inline double R2Pixel::
 Luminance(void) const
 {
@@ -173,6 +167,7 @@ Luminance(void) const
 }
 
 
+// Setters ////////////////////////////////////////////////////////////////////////
 
 inline void R2Pixel::
 SetRed(double red)
@@ -181,16 +176,12 @@ SetRed(double red)
   c[0] = red;
 }
 
-
-
 inline void R2Pixel::
 SetGreen(double green)
 {
   // Set green component
   c[1] = green;
 }
-
-
 
 inline void R2Pixel::
 SetBlue(double blue)
@@ -199,8 +190,6 @@ SetBlue(double blue)
   c[2] = blue;
 }
 
-
-
 inline void R2Pixel::
 SetAlpha(double alpha)
 {
@@ -208,7 +197,9 @@ SetAlpha(double alpha)
   c[3] = alpha;
 }
 
-
+////////////////////////////////////////////////////////////////////////
+// FUNCTIONS
+////////////////////////////////////////////////////////////////////////
 
 inline void R2Pixel::
 Reset (double red, double green, double blue, double alpha)
@@ -219,8 +210,6 @@ Reset (double red, double green, double blue, double alpha)
   c[2] = blue;
   c[3] = alpha;
 }
-
-
 
 inline void R2Pixel::
 Clamp(double maximum_value)
@@ -236,84 +225,6 @@ Clamp(double maximum_value)
 		  c[i] = 0.0;
 }
 
-
-
-inline R2Pixel 
-operator+(const R2Pixel& pixel1, const R2Pixel& pixel2)
-{
-  // Add rgb components of two pixels
-  double r = pixel1.c[0] + pixel2.c[0];
-  double g = pixel1.c[1] + pixel2.c[1];
-  double b = pixel1.c[2] + pixel2.c[2];
-  double a = pixel1.c[3];
-  return R2Pixel(r, g, b, a);
-}
-
-
-
-inline R2Pixel 
-operator-(const R2Pixel& pixel1, const R2Pixel& pixel2)
-{
-  // Subtract rgb components of two pixels
-  double r = pixel1.c[0] - pixel2.c[0];
-  double g = pixel1.c[1] - pixel2.c[1];
-  double b = pixel1.c[2] - pixel2.c[2];
-  double a = pixel1.c[3];
-  return R2Pixel(r, g, b, a);
-}
-
-
-
-inline R2Pixel 
-operator*(const R2Pixel& pixel1, const R2Pixel& pixel2)
-{
-  // Multiply rgb components of two pixels
-  double r = pixel1.c[0] * pixel2.c[0];
-  double g = pixel1.c[1] * pixel2.c[1];
-  double b = pixel1.c[2] * pixel2.c[2];
-  double a = pixel1.c[3];
-  return R2Pixel(r, g, b, a);
-}
-
-
-
-inline R2Pixel 
-operator*(const R2Pixel& pixel, double scale)
-{
-  // Scale rgb components by scalar
-  double r = pixel.c[0] * scale;
-  double g = pixel.c[1] * scale;
-  double b = pixel.c[2] * scale;
-  double a = pixel.c[3];
-  return R2Pixel(r, g, b, a);
-}
-
-
-
-inline R2Pixel 
-operator*(double scale, const R2Pixel& pixel)
-{
-  return pixel * scale;
-}
-
-
-
-inline R2Pixel 
-operator/(const R2Pixel& pixel, double scale)
-{
-  // Divide rgb components by scalar
-  assert(scale != 0);
-  double r = pixel.c[0] / scale;
-  double g = pixel.c[1] / scale;
-  double b = pixel.c[2] / scale;
-  double a = pixel.c[3];
-  return R2Pixel(r, g, b, a);
-}
-
-
-
-// Public functions 
-
 inline R2Pixel::
 R2Pixel(void)
 {
@@ -323,8 +234,6 @@ R2Pixel(void)
   c[2] = 0;
   c[3] = 0;
 }
-
-
 
 inline R2Pixel::
 R2Pixel(const R2Pixel& pixel)
@@ -336,8 +245,6 @@ R2Pixel(const R2Pixel& pixel)
   c[3] = pixel.c[3];
 }
 
-
-
 inline R2Pixel::
 R2Pixel(double red, double green, double blue, double alpha)
 {
@@ -347,8 +254,6 @@ R2Pixel(double red, double green, double blue, double alpha)
   c[2] = blue;
   c[3] = alpha;
 }
-
-
 
 inline R2Pixel::
 R2Pixel(const double rgba[4])
@@ -360,7 +265,71 @@ R2Pixel(const double rgba[4])
   c[3] = rgba[3];
 }
 
+////////////////////////////////////////////////////////////////////////
+// OPERATORS
+////////////////////////////////////////////////////////////////////////
 
+inline R2Pixel
+operator+(const R2Pixel& pixel1, const R2Pixel& pixel2)
+{
+	// Add rgb components of two pixels
+	double r = pixel1.c[0] + pixel2.c[0];
+	double g = pixel1.c[1] + pixel2.c[1];
+	double b = pixel1.c[2] + pixel2.c[2];
+	double a = pixel1.c[3];
+	return R2Pixel(r, g, b, a);
+}
+
+inline R2Pixel
+operator-(const R2Pixel& pixel1, const R2Pixel& pixel2)
+{
+	// Subtract rgb components of two pixels
+	double r = pixel1.c[0] - pixel2.c[0];
+	double g = pixel1.c[1] - pixel2.c[1];
+	double b = pixel1.c[2] - pixel2.c[2];
+	double a = pixel1.c[3];
+	return R2Pixel(r, g, b, a);
+}
+
+inline R2Pixel
+operator*(const R2Pixel& pixel1, const R2Pixel& pixel2)
+{
+	// Multiply rgb components of two pixels
+	double r = pixel1.c[0] * pixel2.c[0];
+	double g = pixel1.c[1] * pixel2.c[1];
+	double b = pixel1.c[2] * pixel2.c[2];
+	double a = pixel1.c[3];
+	return R2Pixel(r, g, b, a);
+}
+
+inline R2Pixel
+operator*(const R2Pixel& pixel, double scale)
+{
+	// Scale rgb components by scalar
+	double r = pixel.c[0] * scale;
+	double g = pixel.c[1] * scale;
+	double b = pixel.c[2] * scale;
+	double a = pixel.c[3];
+	return R2Pixel(r, g, b, a);
+}
+
+inline R2Pixel
+operator*(double scale, const R2Pixel& pixel)
+{
+	return pixel * scale;
+}
+
+inline R2Pixel
+operator/(const R2Pixel& pixel, double scale)
+{
+	// Divide rgb components by scalar
+	assert(scale != 0);
+	double r = pixel.c[0] / scale;
+	double g = pixel.c[1] / scale;
+	double b = pixel.c[2] / scale;
+	double a = pixel.c[3];
+	return R2Pixel(r, g, b, a);
+}
 
 inline bool R2Pixel::
 operator==(const R2Pixel& pixel) const
@@ -369,16 +338,12 @@ operator==(const R2Pixel& pixel) const
   return ((c[0] == pixel.c[0]) && (c[1] == pixel.c[1]) && (c[2] == pixel.c[2]) && (c[3] == pixel.c[3]));
 }
 
-
-
 inline bool R2Pixel::
 operator!=(const R2Pixel& pixel) const
 {
   // Return whether pixel is not equal
   return ((c[0] != pixel.c[0]) || (c[1] != pixel.c[1]) || (c[2] != pixel.c[2]) || (c[3] != pixel.c[3]));
 }
-
-
 
 inline R2Pixel& R2Pixel::
 operator=(const R2Pixel& pixel)
@@ -391,8 +356,6 @@ operator=(const R2Pixel& pixel)
   return *this;
 }
 
-
-
 inline R2Pixel& R2Pixel::
 operator+=(const R2Pixel& pixel)
 {
@@ -401,8 +364,6 @@ operator+=(const R2Pixel& pixel)
   c[2] += pixel.c[2];
   return *this;
 }
-
-
 
 inline R2Pixel& R2Pixel::
 operator-=(const R2Pixel& pixel)
@@ -413,8 +374,6 @@ operator-=(const R2Pixel& pixel)
   return *this;
 }
 
-
-
 inline R2Pixel& R2Pixel::
 operator*=(const R2Pixel& pixel)
 {
@@ -423,8 +382,6 @@ operator*=(const R2Pixel& pixel)
   c[2] *= pixel.c[2];
   return *this;
 }
-
-
 
 inline R2Pixel& R2Pixel::
 operator*=(double a)
@@ -435,8 +392,6 @@ operator*=(double a)
   return *this;
 }
 
-
-
 inline R2Pixel& R2Pixel::
 operator/=(double a)
 {
@@ -446,11 +401,6 @@ operator/=(double a)
   c[2] /= a;
   return *this;
 }
-
-
-
-
-
 
 
 #endif
