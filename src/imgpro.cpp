@@ -186,23 +186,7 @@ main(int argc, char **argv)
 		image->SetNumMarkers(numMarkers);
 
 		//read in the 3D and screen locations of the reference points
-		
-		//DEPRECATED
-		/*std::vector<int> knownX(numKnown);
-		std::vector<int> knownY(numKnown);
-		std::vector<int> knownZ(numKnown);*/
-
 		std::vector<Marker3D> known3D;
-
-		//DEPRECATED
-		//Marker3D* known3D = (Marker3D*)malloc(numKnown * sizeof(Marker3D));
-
-		/*std::vector<int> screenX(numKnown);
-		std::vector<int> screenY(numKnown);*/
-
-		//Marker2D *known2D = (Marker2D*)malloc(numKnown * sizeof(Marker2D));
-
-		std::vector<Marker2D> screenPoints;
 		std::vector<Marker2D> known2D;
 
 		FILE * pFile;
@@ -211,20 +195,18 @@ main(int argc, char **argv)
 		for (int i = 0; i < numKnown; i++) {
 			printf("Please enter the x y and z measurements for known location %d \n", i+1);
 			fscanf(pFile, "%d %d %d", &known3D[i].xVal, &known3D[i].xVal, &known3D[i].zVal);
-			//TEST
-			//printf("I tried to scan %d %d %d \n", knownX[i], knownY[i], knownZ[i]);
-			//TEST
 			printf("Now please enter where they are mapped to on the screen \n");
-			fscanf(pFile, "%d %d", &screenPoints[i].xVal, &screenPoints[i].yVal);
+			fscanf(pFile, "%d %d", &known2D[i].xVal, &known2D[i].yVal);
 
 		}
 
-		image->SetGivenLocs3D(known3D);
-		image->SetGivenLocs2D(screenPoints);
+		//TODO: do we need to have these values saved in every image? 
+		//image->SetGivenLocs3D(known3D);
+		//image->SetGivenLocs2D(known2D);
 
 		printf("Thank you! Your locations are : \n");
 		for (int i = 0; i < numKnown; i++) {
-			printf("< %d, %d, %d > -> < %d, %d > \n", known3D[i].xVal, known3D[i].yVal, known3D[i].zVal, screenPoints[i].xVal, screenPoints[i].yVal);
+			printf("< %d, %d, %d > -> < %d, %d > \n", known3D[i].xVal, known3D[i].yVal, known3D[i].zVal, known2D[i].xVal, known2D[i].yVal);
 		}
 
 		//check to make sure everything is fine
@@ -275,7 +257,7 @@ main(int argc, char **argv)
 		// image = first frame
 		
 		//find the markers on the screen
-		Marker2D* MarkersA = image->MarkerDetection(referenceImageMarker);
+		std::vector<Marker2D> MarkersA = image->MarkerDetection(referenceImageMarker);
 
 		//set them as the values for the image fields
 		std::vector<Marker2D> points(numMarkers);
@@ -294,7 +276,7 @@ main(int argc, char **argv)
 			image->drawMarkers(i, 1, 0, 1);   
 		}
 		for (int i = 0; i < numKnown; i++) {
-			image->drawReferenceSpots(i, 0, 1, 1);
+			image->drawReferenceSpots(known2D, i, 0, 1, 1);
 		}
 
 		// Write output image
@@ -328,7 +310,7 @@ main(int argc, char **argv)
 			// Track features from frame(i-1) to frame(i) and save into imageB
 			//imageA->trackMarkersOntoOtherImage(imageA->MarkerLocs2DX(), imageA->MarkerLocs2DY(), imageB, sqRadius);
 			//find the markers on the screen
-			Marker2D* MarkersA = imageB->MarkerDetection(referenceImageMarker);
+			std::vector<Marker2D> MarkersA = imageB->MarkerDetection(referenceImageMarker);
 
 			////////
 			//set them as the values for the image fields
@@ -342,7 +324,6 @@ main(int argc, char **argv)
 			imageB->SetMarkerLocs(points);
 			
 			////////
-			imageB->SetGivenLocs2D(imageA->GivenLocs2D());
 
 			//calculate the 3D location of the marker
 			std::vector<Marker2D> newLocs (numMarkers);
@@ -357,7 +338,7 @@ main(int argc, char **argv)
 				imageB->drawMarkers(i, 1, 0, 1);
 			}
 			for (int i = 0; i < numKnown; i++) {
-				imageB->drawReferenceSpots(i, 0, 1, 1);
+				imageB->drawReferenceSpots(known2D, i, 0, 1, 1);
 			}
 
 			if (!imageB->Write((outputPath + number + extension).c_str())) {

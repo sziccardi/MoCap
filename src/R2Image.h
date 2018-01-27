@@ -62,9 +62,9 @@ class R2Image {
   // Constructors/Destructor
   R2Image(void);
   R2Image(const char *filename); //for reference image
-  R2Image(const char *filename, int numMarkers, std::vector<Marker3D> givenLocs3D); //for frames
-  R2Image(int width, int height, std::vector<Marker3D> givenLocs3D);
-  R2Image(int width, int height, const R2Pixel *pixels, std::vector<Marker3D> givenLocs3D);
+  R2Image(const char *filename, int numMarkers); //for frames
+  R2Image(int width, int height);
+  R2Image(int width, int height, const R2Pixel *pixels);
   R2Image(const R2Image& image);
   ~R2Image(void);
 
@@ -76,10 +76,6 @@ class R2Image {
 
   std::vector<Marker2D> MarkerLocs2D(void) const;
 
-  std::vector<Marker2D> GivenLocs2D(void) const;
-
-  std::vector<Marker3D> GivenLocs3D(void) const;
-
   // Pixel access/update
   R2Pixel& Pixel(int x, int y);
   R2Pixel *Pixels(void);
@@ -89,8 +85,6 @@ class R2Image {
   void SetPixel(int x, int y,  const R2Pixel& pixel);
   void SetNumMarkers(int num);
   void SetMarkerLocs(std::vector<Marker2D> locs);
-  void SetGivenLocs2D(std::vector<Marker2D> locs);
-  void SetGivenLocs3D(std::vector<Marker3D> locs);
 
   // Image processing
   R2Image& operator=(const R2Image& image);
@@ -99,7 +93,7 @@ class R2Image {
   // Linear filtering operations
   void line(int x0, int x1, int y0, int y1, float r, float g, float b);
   void drawMarkers(int i, float r, float g, float b);
-  void drawReferenceSpots(int i, float r, float g, float b);
+  void drawReferenceSpots(std::vector<Marker2D> locs, int i, float r, float g, float b);
   void box(int x, int y, float r, float g, float b);
   double SSD(R2Image* otherImage, int x1, int y1, int x2, int y2, int range);
  
@@ -110,7 +104,7 @@ class R2Image {
   void find3DLocation(std::vector<Marker2D> screenLocs, std::vector<Marker3D> knownLocs, std::vector<Marker2D> unknownLocs, int numKnown, int numUnknown);
   bool validPixel(const int x, const int y);
 
-  Marker2D* MarkerDetection(R2Image *referenceImage);
+  std::vector<Marker2D> MarkerDetection(R2Image *referenceImage);
 
   // File reading/writing
   int Read(const char *filename);
@@ -133,10 +127,6 @@ class R2Image {
 
   std::vector<Marker2D> markerLocs2D;
 
-  std::vector<Marker2D> givenLocs2D;
-
-  std::vector<Marker3D> givenLocs3D;
-
   int* matMult(int* vector, int size, double** mat, int rows, int columns);
   int* Normalize(int* vector, int size);
 };
@@ -156,16 +146,6 @@ SetPixel(int x, int y, const R2Pixel& pixel)
 inline void R2Image::SetMarkerLocs(std::vector<Marker2D> locs)
 {
 	markerLocs2D = locs;
-}
-
-inline void R2Image::SetGivenLocs2D(std::vector<Marker2D> locs)
-{
-	givenLocs2D = locs;
-}
-
-inline void R2Image::SetGivenLocs3D(std::vector<Marker3D> locs)
-{
-	givenLocs3D = locs;
 }
 
 inline void R2Image::SetNumMarkers(int num) {
@@ -199,18 +179,6 @@ inline std::vector<Marker2D> R2Image::
 MarkerLocs2D(void) const
 {
 	return markerLocs2D;
-}
-
-inline std::vector<Marker2D> R2Image::
-GivenLocs2D(void) const
-{
-	return givenLocs2D;
-}
-
-inline std::vector<Marker3D> R2Image::
-GivenLocs3D(void) const
-{
-	return givenLocs3D;
 }
 
 inline int R2Image::

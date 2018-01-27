@@ -22,11 +22,7 @@ R2Image(void)
 	npixels(0),
 	width(0),
 	height(0),
-	markerLocs2D(std::vector<Marker2D>()),
-	givenLocs2D(std::vector<Marker2D>()),
-	givenLocs3D(std::vector<Marker3D>())
-
-
+	markerLocs2D(std::vector<Marker2D>())
 {	
 }
 
@@ -37,9 +33,7 @@ R2Image(const char *filename)
 	npixels(0),
 	width(0),
 	height(0),
-	markerLocs2D(std::vector<Marker2D>()),
-	givenLocs2D(std::vector<Marker2D>()),
-	givenLocs3D(std::vector<Marker3D>())
+	markerLocs2D(std::vector<Marker2D>())
 {
 	// Given the name
 	// Read image
@@ -49,14 +43,12 @@ R2Image(const char *filename)
 
 
 R2Image::
-R2Image(const char *filename, int numMarkers, std::vector<Marker3D> known3D)
+R2Image(const char *filename, int numMarkers)
 	: pixels(NULL),
 	npixels(0),
 	width(0),
 	height(0),
 	markerLocs2D(std::vector<Marker2D>()),
-	givenLocs2D(std::vector<Marker2D>()),
-	givenLocs3D(known3D),
 	numMarkers(numMarkers)
 {
   // Given the name
@@ -68,14 +60,12 @@ R2Image(const char *filename, int numMarkers, std::vector<Marker3D> known3D)
 
 
 R2Image::
-R2Image(int width, int height, std::vector<Marker3D> known3D)
+R2Image(int width, int height)
   : pixels(NULL),
     npixels(width * height),
     width(width), 
     height(height),
-	markerLocs2D(std::vector<Marker2D>()),
-	givenLocs2D(std::vector<Marker2D>()),
-	givenLocs3D(known3D)
+	markerLocs2D(std::vector<Marker2D>())
 {
   // Given the size
   // Allocate pixels
@@ -86,14 +76,12 @@ R2Image(int width, int height, std::vector<Marker3D> known3D)
 
 
 R2Image::
-R2Image(int width, int height, const R2Pixel *p, std::vector<Marker3D> known3D)
+R2Image(int width, int height, const R2Pixel *p)
   : pixels(NULL),
     npixels(width * height),
     width(width), 
     height(height),
-	markerLocs2D(std::vector<Marker2D>()),
-	givenLocs2D(std::vector<Marker2D>()),
-	givenLocs3D(known3D)
+	markerLocs2D(std::vector<Marker2D>())
 {
   // Given the size and the pixels
   // Allocate pixels
@@ -114,8 +102,6 @@ R2Image(const R2Image& image)
     width(image.width), 
     height(image.height),
 	markerLocs2D(image.markerLocs2D),
-	givenLocs2D(image.givenLocs2D),
-	givenLocs3D(image.givenLocs3D),
 	numMarkers(image.numMarkers)
     
 {
@@ -156,10 +142,6 @@ operator=(const R2Image& image)
 
   // Reset marker locations
   markerLocs2D = image.markerLocs2D;
-
-  givenLocs2D = image.givenLocs2D;
-  
-  givenLocs3D = image.givenLocs3D;
   
   // Allocate new pixels
   pixels = new R2Pixel [ npixels ];
@@ -283,8 +265,6 @@ void R2Image::drawMarkers(int m, float r, float g, float b)
 	int x = markerLocs2D[m].xVal;
 	int y = markerLocs2D[m].yVal;
 
-	int newx = givenLocs2D[m].xVal;
-	int newy = givenLocs2D[m].yVal;
 
 	int i = -20;
 	int j = -20;
@@ -293,10 +273,6 @@ void R2Image::drawMarkers(int m, float r, float g, float b)
 			Pixel(i + x, j + y).SetBlue(b);
 			Pixel(i + x, j + y).SetRed(r);
 			Pixel(i + x, j + y).SetGreen(g);
-
-			Pixel(i + newx, j + newy).SetBlue(r);
-			Pixel(i + newx, j + newy).SetRed(g);
-			Pixel(i + newx, j + newy).SetGreen(b);
 		}
 		j++;
 	}
@@ -327,14 +303,14 @@ void R2Image::drawMarkers(int m, float r, float g, float b)
 }
 
 
-void R2Image::drawReferenceSpots(int m, float r, float g, float b) 
+void R2Image::drawReferenceSpots(std::vector<Marker2D> locs, int m, float r, float g, float b) 
 {
 	//draw a box for reference spots
 	//TODO: write description
 	////////////////////////////////////////////////////////////////////////
 
-	int x = givenLocs2D[m].xVal;
-	int y = givenLocs2D[m].yVal;
+	int x = locs[m].xVal;
+	int y = locs[m].yVal;
 
 	int i = -20;
 	int j = -20;
@@ -449,7 +425,7 @@ int compare(const void *p, const void *q)
 
 // Detection ////////////////////////////////////////////////
 
-Marker2D* R2Image::
+std::vector<Marker2D> R2Image::
 MarkerDetection(R2Image* referenceImage)
 {
 	//implimented for 1 marker right now
@@ -457,8 +433,7 @@ MarkerDetection(R2Image* referenceImage)
 	
 	//radius for search window
 	int radius = referenceImage->width/2;
-	Marker2D *list;
-	list = new Marker2D[numMarkers];
+	std::vector<Marker2D> list(numMarkers);
 
 	double minSSD = (double) MAXINT;
 	
