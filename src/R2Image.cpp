@@ -22,13 +22,9 @@ R2Image(void)
 	npixels(0),
 	width(0),
 	height(0),
-	markerLocs2DX(std::vector<int>()),
-	markerLocs2DY(std::vector<int>()),
-	givenLocs2DX(std::vector<int>()),
-	givenLocs2DY(std::vector<int>()),
-	givenLocs3DX(std::vector<int>()),
-	givenLocs3DY(std::vector<int>()),
-	givenLocs3DZ(std::vector<int>())
+	markerLocs2D(std::vector<Marker2D>()),
+	givenLocs2D(std::vector<Marker2D>()),
+	givenLocs3D(std::vector<Marker3D>())
 
 
 {	
@@ -41,13 +37,9 @@ R2Image(const char *filename)
 	npixels(0),
 	width(0),
 	height(0),
-	markerLocs2DX(std::vector<int>()),
-	markerLocs2DY(std::vector<int>()),
-	givenLocs2DX(std::vector<int>()),
-	givenLocs2DY(std::vector<int>()),
-	givenLocs3DX(std::vector<int>()),
-	givenLocs3DY(std::vector<int>()),
-	givenLocs3DZ(std::vector<int>())
+	markerLocs2D(std::vector<Marker2D>()),
+	givenLocs2D(std::vector<Marker2D>()),
+	givenLocs3D(std::vector<Marker3D>())
 {
 	// Given the name
 	// Read image
@@ -57,18 +49,14 @@ R2Image(const char *filename)
 
 
 R2Image::
-R2Image(const char *filename, int numMarkers, std::vector<int> knownX, std::vector<int> knownY, std::vector<int> knownZ)
+R2Image(const char *filename, int numMarkers, std::vector<Marker3D> known3D)
 	: pixels(NULL),
 	npixels(0),
 	width(0),
 	height(0),
-	markerLocs2DX(std::vector<int>()),
-	markerLocs2DY(std::vector<int>()),
-	givenLocs2DX(std::vector<int>()),
-	givenLocs2DY(std::vector<int>()),
-	givenLocs3DX(knownX),
-	givenLocs3DY(knownY),
-	givenLocs3DZ(knownZ),
+	markerLocs2D(std::vector<Marker2D>()),
+	givenLocs2D(std::vector<Marker2D>()),
+	givenLocs3D(known3D),
 	numMarkers(numMarkers)
 {
   // Given the name
@@ -80,18 +68,14 @@ R2Image(const char *filename, int numMarkers, std::vector<int> knownX, std::vect
 
 
 R2Image::
-R2Image(int width, int height, std::vector<int> knownX, std::vector<int> knownY, std::vector<int> knownZ)
+R2Image(int width, int height, std::vector<Marker3D> known3D)
   : pixels(NULL),
     npixels(width * height),
     width(width), 
     height(height),
-	markerLocs2DX(std::vector<int>()),
-	markerLocs2DY(std::vector<int>()),
-	givenLocs2DX(std::vector<int>()),
-	givenLocs2DY(std::vector<int>()),
-	givenLocs3DX(knownX),
-	givenLocs3DY(knownY),
-	givenLocs3DZ(knownZ)
+	markerLocs2D(std::vector<Marker2D>()),
+	givenLocs2D(std::vector<Marker2D>()),
+	givenLocs3D(known3D)
 {
   // Given the size
   // Allocate pixels
@@ -102,18 +86,14 @@ R2Image(int width, int height, std::vector<int> knownX, std::vector<int> knownY,
 
 
 R2Image::
-R2Image(int width, int height, const R2Pixel *p, std::vector<int> knownX, std::vector<int> knownY, std::vector<int> knownZ)
+R2Image(int width, int height, const R2Pixel *p, std::vector<Marker3D> known3D)
   : pixels(NULL),
     npixels(width * height),
     width(width), 
     height(height),
-	markerLocs2DX(std::vector<int>()),
-	markerLocs2DY(std::vector<int>()),
-	givenLocs2DX(std::vector<int>()),
-	givenLocs2DY(std::vector<int>()),
-	givenLocs3DX(knownX),
-	givenLocs3DY(knownY),
-	givenLocs3DZ(knownZ)
+	markerLocs2D(std::vector<Marker2D>()),
+	givenLocs2D(std::vector<Marker2D>()),
+	givenLocs3D(known3D)
 {
   // Given the size and the pixels
   // Allocate pixels
@@ -133,13 +113,9 @@ R2Image(const R2Image& image)
     npixels(image.npixels),
     width(image.width), 
     height(image.height),
-	markerLocs2DX(image.markerLocs2DX),
-	markerLocs2DY(image.markerLocs2DY),
-	givenLocs2DX(image.givenLocs2DX),
-	givenLocs2DY(image.givenLocs2DY),
-	givenLocs3DX(image.givenLocs3DX),
-	givenLocs3DY(image.givenLocs3DY),
-	givenLocs3DZ(image.givenLocs3DZ),
+	markerLocs2D(image.markerLocs2D),
+	givenLocs2D(image.givenLocs2D),
+	givenLocs3D(image.givenLocs3D),
 	numMarkers(image.numMarkers)
     
 {
@@ -179,15 +155,11 @@ operator=(const R2Image& image)
   height = image.height;
 
   // Reset marker locations
-  markerLocs2DX = image.markerLocs2DX;
-  markerLocs2DY = image.markerLocs2DY;
+  markerLocs2D = image.markerLocs2D;
 
-  givenLocs2DX = image.givenLocs2DX;
-  givenLocs2DY = image.givenLocs2DY;
+  givenLocs2D = image.givenLocs2D;
   
-  givenLocs3DX = image.givenLocs3DX;
-  givenLocs3DY = image.givenLocs3DY;
-  givenLocs3DZ = image.givenLocs3DZ;
+  givenLocs3D = image.givenLocs3D;
   
   // Allocate new pixels
   pixels = new R2Pixel [ npixels ];
@@ -308,11 +280,11 @@ void R2Image::drawMarkers(int m, float r, float g, float b)
 	//TODO: write description
 	////////////////////////////////////////////////////////////////////////
 
-	int x = markerLocs2DX[m];
-	int y = markerLocs2DY[m];
+	int x = markerLocs2D[m].xVal;
+	int y = markerLocs2D[m].yVal;
 
-	int newx = givenLocs2DX[m];
-	int newy = givenLocs2DY[m];
+	int newx = givenLocs2D[m].xVal;
+	int newy = givenLocs2D[m].yVal;
 
 	int i = -20;
 	int j = -20;
@@ -361,8 +333,8 @@ void R2Image::drawReferenceSpots(int m, float r, float g, float b)
 	//TODO: write description
 	////////////////////////////////////////////////////////////////////////
 
-	int x = givenLocs2DX[m];
-	int y = givenLocs2DY[m];
+	int x = givenLocs2D[m].xVal;
+	int y = givenLocs2D[m].yVal;
 
 	int i = -20;
 	int j = -20;
@@ -516,8 +488,7 @@ trackMarkersOntoOtherImage(std::vector<int> originalXLocs, std::vector<int> orig
 	//TODO: impliment the use of this 
 	///////////////////////////////////////////////////////////////////////////////
 
-	std::vector<int> tempXVals(numMarkers);
-	std::vector<int> tempYVals(numMarkers);
+	std::vector<Marker2D> tempVals(numMarkers);
 
 	//for each marker
 	for (int i = 0; i < numMarkers; i++) {
@@ -554,11 +525,10 @@ trackMarkersOntoOtherImage(std::vector<int> originalXLocs, std::vector<int> orig
 		}
 
 		//copy the min SSD feature into the list
-		tempXVals[i] = minSSDMarker.xVal;
-		tempYVals[i] = minSSDMarker.yVal;
+		tempVals[i] = minSSDMarker;
 	}
 
-	otherImage->SetMarkerLocs(tempXVals, tempYVals);
+	otherImage->SetMarkerLocs(tempVals);
 
 }
 
@@ -595,7 +565,7 @@ RANDSAC(int maxIteration, int threshold, Marker2D *originalFeatures, Marker2D *m
 		while (random[3] == random[2] || random[3] == random[1] || random[3] == random[0]) { random[3] = rand() % 150; }
 
 		//create input and output vectors
-		int input[8];
+		std::vector<int> input(8);
 		input[0] = originalFeatures[random[0]].xVal;
 		input[1] = originalFeatures[random[0]].yVal;
 
@@ -608,7 +578,7 @@ RANDSAC(int maxIteration, int threshold, Marker2D *originalFeatures, Marker2D *m
 		input[6] = originalFeatures[random[3]].xVal;
 		input[7] = originalFeatures[random[3]].yVal;
 
-		int output[8];
+		std::vector<int> output(8);
 		output[0] = matchedFeatures[random[0]].xVal;
 		output[1] = matchedFeatures[random[0]].yVal;
 
@@ -679,7 +649,7 @@ RANDSAC(int maxIteration, int threshold, Marker2D *originalFeatures, Marker2D *m
 
 
 double** R2Image::
-calcCameraMatrix(int *input, int *output, int size)
+calcCameraMatrix(std::vector<int> input, std::vector<int> output, int size)
 {
 	//size = number of matched points
 	//input = 3D points
@@ -766,7 +736,7 @@ calcCameraMatrix(int *input, int *output, int size)
 }
 
 void R2Image::
-find3DLocation(Marker2D *screenLocs, Marker3D *knownLocs, Marker2D *unknownLocs, int numKnown, int numUnknown) 
+find3DLocation(std::vector<Marker2D> screenLocs, std::vector<Marker3D> knownLocs, std::vector<Marker2D> unknownLocs, int numKnown, int numUnknown)
 {
 	//screenLocs = screen locations for the reference spots
 	//knownLocs = known locations for the reference spots
@@ -776,8 +746,8 @@ find3DLocation(Marker2D *screenLocs, Marker3D *knownLocs, Marker2D *unknownLocs,
 
 	////////////////////////////////////////////////////////////////////////
 
-	int *output = new int[2 * numKnown];
-	int *input = new int[3 * numKnown];
+	std::vector<int> output (2 * numKnown);
+	std::vector<int> input (3 * numKnown);
 
 	for (int i = 0; i < numKnown; i++) { 
 

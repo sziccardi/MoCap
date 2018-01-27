@@ -131,7 +131,7 @@ main(int argc, char **argv)
 			printf("I didn't read this right... \n");
 		}
 
-		int input[3], output[3];
+		std::vector<int> input(3), output(3);
 		for (int i = 0; i < 8; i += 2) {
 			fscanf(f, "%d %d %d %d ", &input[i], &input[i + 1], &output[i], &output[i + 1]);
 		}
@@ -186,43 +186,45 @@ main(int argc, char **argv)
 		image->SetNumMarkers(numMarkers);
 
 		//read in the 3D and screen locations of the reference points
-		std::vector<int> knownX(numKnown);
+		
+		//DEPRECATED
+		/*std::vector<int> knownX(numKnown);
 		std::vector<int> knownY(numKnown);
-		std::vector<int> knownZ(numKnown);
+		std::vector<int> knownZ(numKnown);*/
 
-		Marker3D* known3D = (Marker3D*)malloc(numKnown * sizeof(Marker3D));
+		std::vector<Marker3D> known3D;
 
-		std::vector<int> screenX(numKnown);
-		std::vector<int> screenY(numKnown);
+		//DEPRECATED
+		//Marker3D* known3D = (Marker3D*)malloc(numKnown * sizeof(Marker3D));
 
-		Marker2D *known2D = (Marker2D*)malloc(numKnown * sizeof(Marker2D));
+		/*std::vector<int> screenX(numKnown);
+		std::vector<int> screenY(numKnown);*/
+
+		//Marker2D *known2D = (Marker2D*)malloc(numKnown * sizeof(Marker2D));
+
+		std::vector<Marker2D> screenPoints;
+		std::vector<Marker2D> known2D;
 
 		FILE * pFile;
 		pFile = fopen("mapping.txt", "r");
 
 		for (int i = 0; i < numKnown; i++) {
 			printf("Please enter the x y and z measurements for known location %d \n", i+1);
-			fscanf(pFile, "%d %d %d", &knownX[i], &knownY[i], &knownZ[i]);
+			fscanf(pFile, "%d %d %d", &known3D[i].xVal, &known3D[i].xVal, &known3D[i].zVal);
 			//TEST
 			//printf("I tried to scan %d %d %d \n", knownX[i], knownY[i], knownZ[i]);
 			//TEST
 			printf("Now please enter where they are mapped to on the screen \n");
-			fscanf(pFile, "%d %d", &screenX[i], &screenY[i]);
+			fscanf(pFile, "%d %d", &screenPoints[i].xVal, &screenPoints[i].yVal);
 
-			known3D[i].xVal = knownX[i];
-			known3D[i].yVal = knownY[i];
-			known3D[i].zVal = knownZ[i];
-
-			known2D[i].xVal = knownX[i];
-			known2D[i].yVal = knownY[i];
 		}
 
-		image->SetGivenLocs3D(knownX, knownY, knownZ);
-		image->SetGivenLocs2D(screenX, screenY);
+		image->SetGivenLocs3D(known3D);
+		image->SetGivenLocs2D(screenPoints);
 
 		printf("Thank you! Your locations are : \n");
 		for (int i = 0; i < numKnown; i++) {
-			printf("< %d, %d, %d > -> < %d, %d > \n", knownX[i], knownY[i], knownZ[i], screenX[i], screenY[i]);
+			printf("< %d, %d, %d > -> < %d, %d > \n", known3D[i].xVal, known3D[i].yVal, known3D[i].zVal, screenPoints[i].xVal, screenPoints[i].yVal);
 		}
 
 		//check to make sure everything is fine
@@ -276,16 +278,14 @@ main(int argc, char **argv)
 		Marker2D* MarkersA = image->MarkerDetection(referenceImageMarker);
 
 		//set them as the values for the image fields
-		std::vector<int> x(numMarkers);
-		std::vector<int> y(numMarkers);
+		std::vector<Marker2D> points(numMarkers);
 
 		for (int i = 0; i < numMarkers; i++) {
 			printf("Found marker %d at ( %d, %d )\n", i, MarkersA[i].xVal, MarkersA[i].yVal);
-			x[i] = MarkersA[i].xVal;
-			y[i] = MarkersA[i].yVal;
+			points[i] = MarkersA[i];
 		}
 
-		image->SetMarkerLocs(x, y);
+		image->SetMarkerLocs(points);
 
 		printf("Found %d markers in first frame\n", numMarkers, numKnown);
 
@@ -332,25 +332,22 @@ main(int argc, char **argv)
 
 			////////
 			//set them as the values for the image fields
-			std::vector<int> x(numMarkers);
-			std::vector<int> y(numMarkers);
+			std::vector<Marker2D> points(numMarkers);
 
 			for (int i = 0; i < numMarkers; i++) {
 				printf("Found marker %d at ( %d, %d )\n", i, MarkersA[i].xVal, MarkersA[i].yVal);
-				x[i] = MarkersA[i].xVal;
-				y[i] = MarkersA[i].yVal;
+				points[i] = MarkersA[i];
 			}
 
-			imageB->SetMarkerLocs(x, y);
+			imageB->SetMarkerLocs(points);
 			
 			////////
-			imageB->SetGivenLocs2D(imageA->GivenLocs2DX(), imageA->GivenLocs2DY());
+			imageB->SetGivenLocs2D(imageA->GivenLocs2D());
 
 			//calculate the 3D location of the marker
-			Marker2D* newLocs = (Marker2D*)malloc(numMarkers * sizeof(Marker2D));
+			std::vector<Marker2D> newLocs (numMarkers);
 			for (int i = 0; i < numMarkers; i++) {
-				newLocs[i].xVal = imageB->MarkerLocs2DX()[i];
-				newLocs[i].yVal = imageB->MarkerLocs2DY()[i];
+				newLocs[i] = imageB->MarkerLocs2D()[i];
 			}
 
 			imageB->find3DLocation(known2D, known3D, newLocs, numKnown, numMarkers);

@@ -62,9 +62,9 @@ class R2Image {
   // Constructors/Destructor
   R2Image(void);
   R2Image(const char *filename); //for reference image
-  R2Image(const char *filename, int numMarkers, std::vector<int> givenLocs3DX, std::vector<int> givenLocs3DY, std::vector<int> givenLocs3DZ); //for frames
-  R2Image(int width, int height, std::vector<int> givenLocs3DX, std::vector<int> givenLocs3DY, std::vector<int> givenLocs3DZ);
-  R2Image(int width, int height, const R2Pixel *pixels, std::vector<int> givenLocs3DX, std::vector<int> givenLocs3DY, std::vector<int> givenLocs3DZ);
+  R2Image(const char *filename, int numMarkers, std::vector<Marker3D> givenLocs3D); //for frames
+  R2Image(int width, int height, std::vector<Marker3D> givenLocs3D);
+  R2Image(int width, int height, const R2Pixel *pixels, std::vector<Marker3D> givenLocs3D);
   R2Image(const R2Image& image);
   ~R2Image(void);
 
@@ -74,15 +74,11 @@ class R2Image {
   int Width(void) const;
   int Height(void) const;
 
-  std::vector<int> MarkerLocs2DX(void) const;
-  std::vector<int> MarkerLocs2DY(void) const;
+  std::vector<Marker2D> MarkerLocs2D(void) const;
 
-  std::vector<int> GivenLocs2DX(void) const;
-  std::vector<int> GivenLocs2DY(void) const;
+  std::vector<Marker2D> GivenLocs2D(void) const;
 
-  std::vector<int> GivenLocs3DX(void) const;
-  std::vector<int> GivenLocs3DY(void) const;
-  std::vector<int> GivenLocs3DZ(void) const;
+  std::vector<Marker3D> GivenLocs3D(void) const;
 
   // Pixel access/update
   R2Pixel& Pixel(int x, int y);
@@ -92,16 +88,15 @@ class R2Image {
   const R2Pixel *operator[](int row) const;
   void SetPixel(int x, int y,  const R2Pixel& pixel);
   void SetNumMarkers(int num);
-  void SetMarkerLocs(std::vector<int> x, std::vector<int> y);
-  void SetGivenLocs2D(std::vector<int> x, std::vector<int> y);
-  void SetGivenLocs3D(std::vector<int> x, std::vector<int> y, std::vector<int> z);
+  void SetMarkerLocs(std::vector<Marker2D> locs);
+  void SetGivenLocs2D(std::vector<Marker2D> locs);
+  void SetGivenLocs3D(std::vector<Marker3D> locs);
 
   // Image processing
   R2Image& operator=(const R2Image& image);
   R2Image& operator*(const R2Image image);
 
   // Linear filtering operations
-  R2Image filterMult(int kernel[3][3]);
   void line(int x0, int x1, int y0, int y1, float r, float g, float b);
   void drawMarkers(int i, float r, float g, float b);
   void drawReferenceSpots(int i, float r, float g, float b);
@@ -111,8 +106,8 @@ class R2Image {
   // further operations
   void trackMarkersOntoOtherImage(std::vector<int> originalXLocs, std::vector<int> originalYLocs, R2Image *otherImage, int radius);
   int RANDSAC(int maxIteration, int threshold, Marker2D *originalFeatures, Marker2D *matchedFeatures, double **HMatrix);
-  double** calcCameraMatrix(int *input, int * output, int size);
-  void find3DLocation(Marker2D *screenLocs, Marker3D *knownLocs, Marker2D *unknownLocs, int numKnown, int numUnknown);
+  double** calcCameraMatrix(std::vector<int> input, std::vector<int> output, int size);
+  void find3DLocation(std::vector<Marker2D> screenLocs, std::vector<Marker3D> knownLocs, std::vector<Marker2D> unknownLocs, int numKnown, int numUnknown);
   bool validPixel(const int x, const int y);
 
   Marker2D* MarkerDetection(R2Image *referenceImage);
@@ -136,15 +131,11 @@ class R2Image {
   int width;
   int height;
 
-  std::vector<int> markerLocs2DX;
-  std::vector<int> markerLocs2DY;
+  std::vector<Marker2D> markerLocs2D;
 
-  std::vector<int> givenLocs2DX;
-  std::vector<int> givenLocs2DY;
+  std::vector<Marker2D> givenLocs2D;
 
-  std::vector<int> givenLocs3DX;
-  std::vector<int> givenLocs3DY;
-  std::vector<int> givenLocs3DZ;
+  std::vector<Marker3D> givenLocs3D;
 
   int* matMult(int* vector, int size, double** mat, int rows, int columns);
   int* Normalize(int* vector, int size);
@@ -162,23 +153,19 @@ SetPixel(int x, int y, const R2Pixel& pixel)
 	pixels[x*height + y] = pixel;
 }
 
-inline void R2Image::SetMarkerLocs(std::vector<int> x, std::vector<int> y)
+inline void R2Image::SetMarkerLocs(std::vector<Marker2D> locs)
 {
-	markerLocs2DX = x;
-	markerLocs2DY = y;
+	markerLocs2D = locs;
 }
 
-inline void R2Image::SetGivenLocs2D(std::vector<int> x, std::vector<int> y)
+inline void R2Image::SetGivenLocs2D(std::vector<Marker2D> locs)
 {
-	givenLocs2DX = x;
-	givenLocs2DY = y;
+	givenLocs2D = locs;
 }
 
-inline void R2Image::SetGivenLocs3D(std::vector<int> x, std::vector<int> y, std::vector<int> z)
+inline void R2Image::SetGivenLocs3D(std::vector<Marker3D> locs)
 {
-	givenLocs3DX = x;
-	givenLocs3DY = y;
-	givenLocs3DZ = z;
+	givenLocs3D = locs;
 }
 
 inline void R2Image::SetNumMarkers(int num) {
@@ -208,46 +195,22 @@ Height(void) const
   return height;
 }
 
-inline std::vector<int> R2Image::
-MarkerLocs2DX(void) const
+inline std::vector<Marker2D> R2Image::
+MarkerLocs2D(void) const
 {
-	return markerLocs2DX;
+	return markerLocs2D;
 }
 
-inline std::vector<int> R2Image::
-MarkerLocs2DY(void) const
+inline std::vector<Marker2D> R2Image::
+GivenLocs2D(void) const
 {
-	return markerLocs2DY;
+	return givenLocs2D;
 }
 
-inline std::vector<int> R2Image::
-GivenLocs2DX(void) const
+inline std::vector<Marker3D> R2Image::
+GivenLocs3D(void) const
 {
-	return givenLocs2DX;
-}
-
-inline std::vector<int> R2Image::
-GivenLocs2DY(void) const
-{
-	return givenLocs2DY;
-}
-
-inline std::vector<int> R2Image::
-GivenLocs3DX(void) const
-{
-	return givenLocs3DX;
-}
-
-inline std::vector<int> R2Image::
-GivenLocs3DY(void) const
-{
-	return givenLocs3DY;
-}
-
-inline std::vector<int> R2Image::
-GivenLocs3DZ(void) const
-{
-	return givenLocs3DZ;
+	return givenLocs3D;
 }
 
 inline int R2Image::
