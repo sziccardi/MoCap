@@ -99,9 +99,6 @@ class R2Image {
  
   // further operations
   void trackMarkersOntoOtherImage(std::vector<int> originalXLocs, std::vector<int> originalYLocs, R2Image *otherImage, int radius);
-  int RANDSAC(int maxIteration, int threshold, Marker2D *originalFeatures, Marker2D *matchedFeatures, double **HMatrix);
-  double** calcCameraMatrix(std::vector<int> input, std::vector<int> output, int size);
-  void find3DLocation(std::vector<Marker2D> screenLocs, std::vector<Marker3D> knownLocs, std::vector<Marker2D> unknownLocs, int numKnown, int numUnknown);
   bool validPixel(const int x, const int y);
 
   std::vector<Marker2D> MarkerDetection(R2Image *referenceImage);
@@ -127,8 +124,6 @@ class R2Image {
 
   std::vector<Marker2D> markerLocs2D;
 
-  int* matMult(int* vector, int size, double** mat, int rows, int columns);
-  int* Normalize(int* vector, int size);
 };
 
 ////////////////////////////////////////////////////////////////////////
